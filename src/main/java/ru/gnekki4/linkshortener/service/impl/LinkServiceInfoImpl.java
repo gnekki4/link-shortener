@@ -19,8 +19,8 @@ public class LinkServiceInfoImpl implements LinkInfoService {
             .build();
 
     @Override
-    public String shortenLink(CreateLinkInfoRequest createLinkInfoRequest) {
-        final var shortUrl = PREFIX + generator.generate(LIMIT);
+    public String createShortLink(CreateLinkInfoRequest createLinkInfoRequest) {
+        var shortUrl = generator.generate(10);
 
         storage.put(shortUrl, createLinkInfoRequest);
 
