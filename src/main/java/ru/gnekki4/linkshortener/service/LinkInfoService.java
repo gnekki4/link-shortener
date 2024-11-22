@@ -1,9 +1,11 @@
 package ru.gnekki4.linkshortener.service;
 
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface LinkInfoService {
 
@@ -12,4 +14,8 @@ public interface LinkInfoService {
     LinkInfoResponse getByShortLink(String shortLink);
 
     List<LinkInfoResponse> findByFilter();
+
+    void delete(UUID id);
+
+    LinkInfoResponse updateLinkInfo(UpdateLinkInfoRequest request);
 }

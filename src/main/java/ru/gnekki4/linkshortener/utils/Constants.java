@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Constants {
 
-    public static final int SHORT_LINK_LENGTH = 10;
-
     public static final String UPPER_CASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     public static final String DIGITS = "0123456789";

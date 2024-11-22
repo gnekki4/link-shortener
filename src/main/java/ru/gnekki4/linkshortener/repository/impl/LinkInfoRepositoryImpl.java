@@ -1,11 +1,13 @@
 package ru.gnekki4.linkshortener.repository.impl;
 
+import org.springframework.stereotype.Repository;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Repository
 public class LinkInfoRepositoryImpl implements LinkInfoRepository {
 
     private final Map<String, LinkInfo> storage = new ConcurrentHashMap<>();
@@ -21,6 +23,18 @@ public class LinkInfoRepositoryImpl implements LinkInfoRepository {
         storage.put(linkInfo.getShortLink(), linkInfo);
 
         return linkInfo;
+    }
+
+    @Override
+    public Optional<LinkInfo> findById(UUID id) {
+        return findAll().stream()
+                .filter(it -> it.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public void delete(UUID id) {
+        findById(id).ifPresent(linkInfo -> storage.remove(linkInfo.getShortLink()));
     }
 
     @Override
