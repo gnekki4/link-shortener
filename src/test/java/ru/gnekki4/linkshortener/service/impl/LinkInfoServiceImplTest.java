@@ -1,12 +1,14 @@
 package ru.gnekki4.linkshortener.service.impl;
 
-import org.junit.jupiter.api.BeforeAll;
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.exception.NotFoundException;
-import ru.gnekki4.linkshortener.repository.impl.LinkInfoRepositoryImpl;
 import ru.gnekki4.linkshortener.service.LinkInfoService;
 
 import java.time.LocalDateTime;
@@ -14,18 +16,16 @@ import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.gnekki4.linkshortener.utils.Constants.SHORT_LINK_LENGTH;
 
+@SpringBootTest
+@AllArgsConstructor
 @TestInstance(Lifecycle.PER_CLASS)
 class LinkInfoServiceImplTest {
 
     private final Random random = new Random();
-    private LinkInfoService linkInfoService;
 
-    @BeforeAll
-    void setUp() {
-        linkInfoService = new LinkInfoServiceImpl(new LinkInfoRepositoryImpl());
-    }
+    @Autowired
+    private LinkInfoService linkInfoService;
 
     @Test
     void whenCreateShortLinkCalled_doesNotThrow() {
@@ -39,7 +39,7 @@ class LinkInfoServiceImplTest {
         final var shortened = linkInfoService.createLinkInfo(request);
 
         assertNotNull(shortened);
-        assertEquals(SHORT_LINK_LENGTH, shortened.getShortLink().length());
+        assertEquals(8, shortened.getShortLink().length());
     }
 
     @Test
@@ -85,5 +85,51 @@ class LinkInfoServiceImplTest {
 
         assertNotNull(responses);
         assertEquals(requestsAmount, responses.size());
+    }
+
+    @Test
+    void whenDeleteCalled_doesNotThrow() {
+        var requestsAmount = 5;
+
+        for (var i = 0; i < requestsAmount; i++) {
+            var createLinkInfoRequest = CreateLinkInfoRequest.builder()
+                    .link(UUID.randomUUID().toString())
+                    .description(UUID.randomUUID().toString())
+                    .endTime(LocalDateTime.now().plusDays(i))
+                    .build();
+            var response = linkInfoService.createLinkInfo(createLinkInfoRequest);
+            assertNotNull(linkInfoService.getByShortLink(response.getShortLink()));
+            assertDoesNotThrow(() -> linkInfoService.delete(response.getId()));
+        }
+
+        var nonExistedUUID = UUID.randomUUID();
+        assertThrows(NotFoundException.class, () -> linkInfoService.delete(nonExistedUUID));
+    }
+
+    @Test
+    void whenUpdateCalled_doesNotThrow() {
+        var request = CreateLinkInfoRequest.builder()
+                .link(UUID.randomUUID().toString())
+                .description(UUID.randomUUID().toString())
+                .endTime(LocalDateTime.now())
+                .build();
+
+        var response = linkInfoService.createLinkInfo(request);
+        assertEquals(1, linkInfoService.findByFilter().size());
+
+        var updateRequest = UpdateLinkInfoRequest.builder()
+                .id(response.getId())
+                .link("UPDATED " + response.getLink())
+                .endTime(response.getEndTime().plusDays(1))
+                .description("UPDATED " + response.getDescription())
+                .active(!response.getActive())
+                .build();
+
+        var updated = linkInfoService.updateLinkInfo(updateRequest);
+
+        assertTrue(updated.getLink().startsWith("UPDATED"));
+        assertTrue(updated.getDescription().startsWith("UPDATED"));
+        assertEquals(updated.getEndTime(), response.getEndTime().plusDays(1));
+        assertEquals(updated.getActive(), !response.getActive());
     }
 }
