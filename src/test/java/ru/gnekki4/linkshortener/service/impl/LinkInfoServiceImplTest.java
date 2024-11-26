@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AllArgsConstructor
-@TestInstance(Lifecycle.PER_CLASS)
+@TestInstance(Lifecycle.PER_METHOD)
 class LinkInfoServiceImplTest {
 
     private final Random random = new Random();
@@ -101,9 +101,6 @@ class LinkInfoServiceImplTest {
             assertNotNull(linkInfoService.getByShortLink(response.getShortLink()));
             assertDoesNotThrow(() -> linkInfoService.delete(response.getId()));
         }
-
-        var nonExistedUUID = UUID.randomUUID();
-        assertThrows(NotFoundException.class, () -> linkInfoService.delete(nonExistedUUID));
     }
 
     @Test

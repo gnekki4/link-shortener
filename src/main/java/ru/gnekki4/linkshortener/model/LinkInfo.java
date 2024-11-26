@@ -1,7 +1,6 @@
 package ru.gnekki4.linkshortener.model;
 
 import lombok.*;
-import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

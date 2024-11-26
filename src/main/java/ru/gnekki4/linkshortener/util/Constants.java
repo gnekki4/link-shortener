@@ -1,4 +1,4 @@
-package ru.gnekki4.linkshortener.utils;
+package ru.gnekki4.linkshortener.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Constants {
 
+    public static final String LOG_TIME_FORMAT = "Время выполнения метода {}: {} мс.";
     public static final String UPPER_CASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     public static final String DIGITS = "0123456789";
