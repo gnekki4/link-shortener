@@ -2,6 +2,8 @@ package ru.gnekki4.linkshortener.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.RandomStringGenerator;
+import org.springframework.stereotype.Service;
+import ru.gnekki4.linkshortener.annotation.LogExecutionTime;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.exception.NotFoundException;
@@ -14,8 +16,9 @@ import ru.gnekki4.linkshortener.service.LinkInfoService;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.gnekki4.linkshortener.utils.Constants.GENERATOR_SELECTION;
+import static ru.gnekki4.linkshortener.util.Constants.GENERATOR_SELECTION;
 
+@Service
 @RequiredArgsConstructor
 public class LinkInfoServiceImpl implements LinkInfoService {
 
@@ -27,6 +30,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
             .build();
 
     @Override
+    @LogExecutionTime
     public LinkInfoResponse createLinkInfo(CreateLinkInfoRequest createLinkInfoRequest) {
         var shortLink = generator.generate(linkInfoProperty.getShortLinkLength());
 
@@ -43,6 +47,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     }
 
     @Override
+    @LogExecutionTime
     public LinkInfoResponse getByShortLink(String shortLink) {
         return linkInfoRepository.findByShortLink(shortLink)
                 .map(this::fromLinkInfo)
@@ -51,6 +56,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     }
 
     @Override
+    @LogExecutionTime
     public List<LinkInfoResponse> findByFilter() {
         return linkInfoRepository.findAll().stream()
                 .map(this::fromLinkInfo)
@@ -58,11 +64,13 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     }
 
     @Override
+    @LogExecutionTime
     public void delete(UUID id) {
         linkInfoRepository.delete(id);
     }
 
     @Override
+    @LogExecutionTime
     public LinkInfoResponse updateLinkInfo(UpdateLinkInfoRequest request) {
         return linkInfoRepository.findById(request.getId())
                 .map(linkInfo -> update(linkInfo, request))
