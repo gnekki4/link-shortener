@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +16,12 @@ public class LinkInfoRepositoryImpl implements LinkInfoRepository {
     @Override
     public Optional<LinkInfo> findByShortLink(String shortLink) {
         return Optional.ofNullable(storage.get(shortLink));
+    }
+
+    @Override
+    public Optional<LinkInfo> findActiveByShortLink(String shortLink, LocalDateTime localDateTime) {
+        return Optional.of(storage.get(shortLink))
+                .filter(linkInfo -> isLinkInfoActive(linkInfo, localDateTime));
     }
 
     @Override
@@ -40,5 +47,9 @@ public class LinkInfoRepositoryImpl implements LinkInfoRepository {
     @Override
     public List<LinkInfo> findAll() {
         return new ArrayList<>(storage.values());
+    }
+
+    private boolean isLinkInfoActive(LinkInfo linkInfo, LocalDateTime localDateTime) {
+        return Boolean.TRUE.equals(linkInfo.getActive()) && localDateTime.isBefore(linkInfo.getEndTime());
     }
 }

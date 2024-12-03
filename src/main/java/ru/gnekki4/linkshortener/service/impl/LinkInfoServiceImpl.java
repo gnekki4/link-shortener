@@ -13,6 +13,7 @@ import ru.gnekki4.linkshortener.property.LinkInfoProperty;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
 import ru.gnekki4.linkshortener.service.LinkInfoService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +50,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @Override
     @LogExecutionTime
     public LinkInfoResponse getByShortLink(String shortLink) {
-        return linkInfoRepository.findByShortLink(shortLink)
+        return linkInfoRepository.findActiveByShortLink(shortLink, LocalDateTime.now())
                 .map(this::fromLinkInfo)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Entity with short link %s is missing", shortLink)));

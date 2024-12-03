@@ -3,6 +3,7 @@ package ru.gnekki4.linkshortener.repository;
 import org.springframework.stereotype.Repository;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +20,6 @@ public interface LinkInfoRepository {
     LinkInfo save(LinkInfo linkInfo);
 
     List<LinkInfo> findAll();
+
+    Optional<LinkInfo> findActiveByShortLink(String shortLink, LocalDateTime localDateTime);
 }

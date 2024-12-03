@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
@@ -23,6 +24,7 @@ import static ru.gnekki4.linkshortener.util.Constants.LOG_TIME_FORMAT;
 
 @Slf4j
 @Component
+@Profile("log-exec-time")
 @ConditionalOnProperty(prefix = "link-shortener.logging", value = "enable-log-execution-time", havingValue = "true")
 public class ExecutionTimePostProcessor implements BeanPostProcessor {
 
