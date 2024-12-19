@@ -23,7 +23,6 @@ public class ShortLinkController {
     @GetMapping("/{shortLink}")
     public ResponseEntity<String> getByShortLink(@PathVariable String shortLink) {
         var linkInfoResponse = linkInfoService.getByShortLink(shortLink);
-        log.info("Successfully opened short link: {}", linkInfoResponse);
 
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
                 .header(HttpHeaders.LOCATION, linkInfoResponse.getLink())

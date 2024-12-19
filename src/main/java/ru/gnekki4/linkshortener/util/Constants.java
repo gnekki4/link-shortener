@@ -11,5 +11,6 @@ public class Constants {
     public static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     public static final String DIGITS = "0123456789";
     public static final String GENERATOR_SELECTION = UPPER_CASE_LETTERS + LOWER_CASE_LETTERS + DIGITS;
+    public static final String LINK_REGEX = "^(https?):\\/\\/[^\\s/$.?#].[^\\s]*$";
 
 }

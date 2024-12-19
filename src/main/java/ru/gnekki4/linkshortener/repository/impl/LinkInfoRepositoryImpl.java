@@ -20,7 +20,7 @@ public class LinkInfoRepositoryImpl implements LinkInfoRepository {
 
     @Override
     public Optional<LinkInfo> findActiveByShortLink(String shortLink, LocalDateTime localDateTime) {
-        return Optional.of(storage.get(shortLink))
+        return Optional.ofNullable(storage.get(shortLink))
                 .filter(linkInfo -> isLinkInfoActive(linkInfo, localDateTime));
     }
 
