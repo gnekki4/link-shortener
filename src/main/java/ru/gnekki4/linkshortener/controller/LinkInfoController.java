@@ -1,5 +1,6 @@
 package ru.gnekki4.linkshortener.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -24,32 +25,41 @@ public class LinkInfoController {
     @GetMapping
     public CommonResponse<List<LinkInfoResponse>> getLinkInfo() {
         var linkInfoResponses = linkInfoService.findByFilter();
-        log.info("Successfully retrieved linkInfoResponses: {}", linkInfoResponses);
 
-        return new CommonResponse<>(UUID.randomUUID(), linkInfoResponses);
+        return CommonResponse.<List<LinkInfoResponse>>builder()
+                .id(UUID.randomUUID())
+                .body(linkInfoResponses)
+                .build();
     }
 
     @PostMapping
-    public CommonResponse<LinkInfoResponse> createLinkInfo(@RequestBody CommonRequest<CreateLinkInfoRequest> request) {
+    public CommonResponse<LinkInfoResponse> createLinkInfo(
+            @Valid @RequestBody CommonRequest<CreateLinkInfoRequest> request) {
         var linkInfoResponse = linkInfoService.createLinkInfo(request.getBody());
-        log.info("Successfully created linkInfo: {}", linkInfoResponse);
 
-        return new CommonResponse<>(UUID.randomUUID(), linkInfoResponse);
+        return CommonResponse.<LinkInfoResponse>builder()
+                .id(UUID.randomUUID())
+                .body(linkInfoResponse)
+                .build();
     }
 
     @PatchMapping
-    public CommonResponse<LinkInfoResponse> updateLinkInfo(@RequestBody CommonRequest<UpdateLinkInfoRequest> request) {
+    public CommonResponse<LinkInfoResponse> updateLinkInfo(
+            @Valid @RequestBody CommonRequest<UpdateLinkInfoRequest> request) {
         var linkInfoResponse = linkInfoService.updateLinkInfo(request.getBody());
-        log.info("Successfully updated linkInfo: {}", linkInfoResponse);
 
-        return new CommonResponse<>(UUID.randomUUID(), linkInfoResponse);
+        return CommonResponse.<LinkInfoResponse>builder()
+                .id(UUID.randomUUID())
+                .body(linkInfoResponse)
+                .build();
     }
 
     @DeleteMapping("/{id}")
     public CommonResponse<Object> deleteLinkInfo(@PathVariable UUID id) {
         linkInfoService.delete(id);
-        log.info("Successfully deleted linkInfo with id: {}", id);
 
-        return CommonResponse.builder().id(UUID.randomUUID()).build();
+        return CommonResponse.builder()
+                .id(UUID.randomUUID())
+                .build();
     }
 }
