@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.gnekki4.linkshortener.dto.CommonRequest;
-import ru.gnekki4.linkshortener.dto.CommonResponse;
-import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
-import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.*;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
 import ru.gnekki4.linkshortener.service.LinkInfoService;
 
@@ -22,9 +19,10 @@ public class LinkInfoController {
 
     private final LinkInfoService linkInfoService;
 
-    @GetMapping
-    public CommonResponse<List<LinkInfoResponse>> getLinkInfo() {
-        var linkInfoResponses = linkInfoService.findByFilter();
+    @PostMapping("/filter")
+    public CommonResponse<List<LinkInfoResponse>> getLinkInfo(
+            @RequestBody @Valid CommonRequest<FilterLinkInfoRequest> filterLinkInfoRequest) {
+        var linkInfoResponses = linkInfoService.findByFilter(filterLinkInfoRequest.getBody());
 
         return CommonResponse.<List<LinkInfoResponse>>builder()
                 .id(UUID.randomUUID())

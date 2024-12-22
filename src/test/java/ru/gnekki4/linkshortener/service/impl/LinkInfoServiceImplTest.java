@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.gnekki4.linkshortener.LinkShortenerTestData.mockedFilterLinkInfoRequest;
 
 @SpringBootTest
 @AllArgsConstructor
@@ -81,7 +82,7 @@ class LinkInfoServiceImplTest {
             linkInfoService.createLinkInfo(createLinkInfoRequest);
         }
 
-        var responses = linkInfoService.findByFilter();
+        var responses = linkInfoService.findByFilter(mockedFilterLinkInfoRequest);
 
         assertNotNull(responses);
         assertEquals(requestsAmount, responses.size());
@@ -112,7 +113,7 @@ class LinkInfoServiceImplTest {
                 .build();
 
         var response = linkInfoService.createLinkInfo(request);
-        assertEquals(1, linkInfoService.findByFilter().size());
+        assertEquals(1, linkInfoService.findByFilter(mockedFilterLinkInfoRequest).size());
 
         var updateRequest = UpdateLinkInfoRequest.builder()
                 .id(response.getId())
