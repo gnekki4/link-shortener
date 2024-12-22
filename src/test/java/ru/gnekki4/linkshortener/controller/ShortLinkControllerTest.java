@@ -11,6 +11,7 @@ import ru.gnekki4.linkshortener.property.LinkInfoProperty;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
 import ru.gnekki4.linkshortener.service.LinkInfoService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,8 +58,9 @@ class ShortLinkControllerTest {
     @Test
     void getByShortLink_found() {
         var shortLink = UUID.randomUUID().toString();
-        when(linkInfoService.getByShortLink(shortLink)).thenReturn(mockedLinkInfoResponse);
-        when(linkInfoRepository.findByShortLink(shortLink)).thenReturn(Optional.of(mockedLinkInfo));
+        when(linkInfoService.getByShortLink(shortLink, true)).thenReturn(mockedLinkInfoResponse);
+        when(linkInfoRepository.findActiveShortLink(shortLink, LocalDateTime.now().plusMonths(1)))
+                .thenReturn(Optional.of(mockedLinkInfo));
 
         assertDoesNotThrow(() -> {
             var entity = shortLinkController.getByShortLink(shortLink);
@@ -66,20 +68,21 @@ class ShortLinkControllerTest {
             assertEquals(mockedLinkInfoResponse.getLink(), entity.getHeaders().getFirst(HttpHeaders.LOCATION));
         });
 
-        verify(linkInfoService, times(1)).getByShortLink(shortLink);
+        verify(linkInfoService, times(1)).getByShortLink(shortLink, true);
     }
 
     @Test
     void getByShortLink_notFound() {
         var shortLink = UUID.randomUUID().toString();
-        when(linkInfoRepository.findByShortLink(shortLink)).thenReturn(Optional.empty());
-        when(linkInfoService.getByShortLink(shortLink)).thenThrow(new NotFoundException(""));
+        when(linkInfoRepository.findActiveShortLink(shortLink,  LocalDateTime.now().plusMonths(1)))
+                .thenReturn(Optional.empty());
+        when(linkInfoService.getByShortLink(shortLink, true)).thenThrow(new NotFoundException(""));
 
         assertDoesNotThrow(() -> {
             var entity = shortLinkController.getByShortLink(shortLink);
             assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
         });
 
-        verify(linkInfoService, times(1)).getByShortLink(shortLink);
+        verify(linkInfoService, times(1)).getByShortLink(shortLink, true);
     }
 }

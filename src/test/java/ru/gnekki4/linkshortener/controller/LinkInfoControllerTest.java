@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.CollectionUtils;
 import ru.gnekki4.linkshortener.dto.CommonRequest;
+import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
 import ru.gnekki4.linkshortener.property.LinkInfoProperty;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
@@ -57,18 +58,23 @@ class LinkInfoControllerTest {
 
     @Test
     void getLinkInfo_doesNotThrow() {
-        when(linkInfoService.findByFilter()).thenReturn(List.of());
+        when(linkInfoService.findByFilter(mockedFilterLinkInfoRequest)).thenReturn(List.of());
         assertDoesNotThrow(() -> {
-            var linkInfo = linkInfoController.getLinkInfo();
+            var linkInfo = linkInfoController.getLinkInfo(
+                    CommonRequest.<FilterLinkInfoRequest>builder()
+                            .body(mockedFilterLinkInfoRequest)
+                            .build());
             assertNotNull(linkInfo);
 
             var list = (List<LinkInfoResponse>) linkInfo.getBody();
             assertTrue(CollectionUtils.isEmpty(list));
         });
 
-        when(linkInfoService.findByFilter()).thenReturn(List.of(mockedLinkInfoResponse));
+        when(linkInfoService.findByFilter(mockedFilterLinkInfoRequest)).thenReturn(List.of(mockedLinkInfoResponse));
         assertDoesNotThrow(() -> {
-            var linkInfo = linkInfoController.getLinkInfo();
+            var linkInfo = linkInfoController.getLinkInfo(CommonRequest.<FilterLinkInfoRequest>builder()
+                    .body(mockedFilterLinkInfoRequest)
+                    .build());
             assertNotNull(linkInfo);
 
             var list = (List<LinkInfoResponse>) linkInfo.getBody();

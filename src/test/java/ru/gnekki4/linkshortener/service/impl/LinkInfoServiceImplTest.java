@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.gnekki4.linkshortener.LinkShortenerTestData.mockedFilterLinkInfoRequest;
 
 @SpringBootTest
 @AllArgsConstructor
@@ -51,7 +52,7 @@ class LinkInfoServiceImplTest {
                 .build();
         var response = linkInfoService.createLinkInfo(createLinkInfoRequest);
 
-        assertNotNull(linkInfoService.getByShortLink(response.getShortLink()));
+        assertNotNull(linkInfoService.getByShortLink(response.getShortLink(), true));
     }
 
     @Test
@@ -65,7 +66,7 @@ class LinkInfoServiceImplTest {
 
         var nonExistentShortLink = UUID.randomUUID().toString();
 
-        assertThrows(NotFoundException.class, () -> linkInfoService.getByShortLink(nonExistentShortLink));
+        assertThrows(NotFoundException.class, () -> linkInfoService.getByShortLink(nonExistentShortLink, true));
     }
 
     @Test
@@ -81,7 +82,7 @@ class LinkInfoServiceImplTest {
             linkInfoService.createLinkInfo(createLinkInfoRequest);
         }
 
-        var responses = linkInfoService.findByFilter();
+        var responses = linkInfoService.findByFilter(mockedFilterLinkInfoRequest);
 
         assertNotNull(responses);
         assertEquals(requestsAmount, responses.size());
@@ -98,7 +99,7 @@ class LinkInfoServiceImplTest {
                     .endTime(LocalDateTime.now().plusDays(i))
                     .build();
             var response = linkInfoService.createLinkInfo(createLinkInfoRequest);
-            assertNotNull(linkInfoService.getByShortLink(response.getShortLink()));
+            assertNotNull(linkInfoService.getByShortLink(response.getShortLink(), true));
             assertDoesNotThrow(() -> linkInfoService.delete(response.getId()));
         }
     }
@@ -112,7 +113,7 @@ class LinkInfoServiceImplTest {
                 .build();
 
         var response = linkInfoService.createLinkInfo(request);
-        assertEquals(1, linkInfoService.findByFilter().size());
+        assertEquals(1, linkInfoService.findByFilter(mockedFilterLinkInfoRequest).size());
 
         var updateRequest = UpdateLinkInfoRequest.builder()
                 .id(response.getId())

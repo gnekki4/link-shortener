@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: release/1.0.0
+      author: "Pechkov N.V."
+      changes:
+        - tagDatabase:
+            tag: release/1.0.0
+  - include:
+      file: 01_create_link_info.yml
+      relativeToChangelogFile: true
