@@ -3,6 +3,7 @@ package ru.gnekki4.linkshortener;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
@@ -39,6 +40,14 @@ public class LinkShortenerTestData {
             .endTime(LocalDateTime.now())
             .active(random.nextBoolean())
             .id(UUID.randomUUID())
+            .build();
+
+    public static final FilterLinkInfoRequest mockedFilterLinkInfoRequest = FilterLinkInfoRequest.builder()
+            .linkPart(UUID.randomUUID().toString())
+            .endTimeFrom(LocalDateTime.now().minusMonths(1))
+            .endTimeTo(LocalDateTime.now().plusMonths(1))
+            .active(random.nextBoolean())
+            .description(UUID.randomUUID().toString())
             .build();
 
     public static final LinkInfoResponse mockedLinkInfoResponse = LinkInfoResponse.builder()

@@ -5,8 +5,10 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.stereotype.Service;
 import ru.gnekki4.linkshortener.annotation.LogExecutionTime;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.exception.NotFoundException;
+import ru.gnekki4.linkshortener.exception.NotFoundShortLinkException;
 import ru.gnekki4.linkshortener.mapper.LinkInfoMapper;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
@@ -36,24 +38,36 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @LogExecutionTime
     public LinkInfoResponse createLinkInfo(CreateLinkInfoRequest createLinkInfoRequest) {
         var shortLink = generator.generate(linkInfoProperty.getShortLinkLength());
-        var linkInfo = linkInfoMapper.fromCreateRequest(createLinkInfoRequest, shortLink); // упс
+        var linkInfo = linkInfoMapper.fromCreateRequest(createLinkInfoRequest, shortLink);
 
         return linkInfoMapper.toResponse(linkInfoRepository.save(linkInfo));
     }
 
     @Override
     @LogExecutionTime
-    public LinkInfoResponse getByShortLink(String shortLink) {
-        return linkInfoRepository.findActiveByShortLink(shortLink, LocalDateTime.now())
+    public LinkInfoResponse getByShortLink(String shortLink, boolean increment) {
+        return linkInfoRepository.findActiveShortLink(shortLink, LocalDateTime.now())
+                .map(linkInfo -> {
+                    if (increment) {
+                        linkInfo.setOpeningCount(linkInfo.getOpeningCount() + 1);
+                        return linkInfoRepository.save(linkInfo);
+                    }
+                    return linkInfo;
+                })
                 .map(linkInfoMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException(
+                .orElseThrow(() -> new NotFoundShortLinkException(
                         String.format("Entity with short link %s is missing", shortLink)));
     }
 
-    @Override
     @LogExecutionTime
-    public List<LinkInfoResponse> findByFilter() {
-        return linkInfoRepository.findAll().stream()
+    public List<LinkInfoResponse> findByFilter(FilterLinkInfoRequest filterLinkInfoRequest) {
+        return linkInfoRepository.findByFilter(
+                        filterLinkInfoRequest.getLinkPart(),
+                        filterLinkInfoRequest.getEndTimeFrom(),
+                        filterLinkInfoRequest.getEndTimeTo(),
+                        filterLinkInfoRequest.getDescription(),
+                        filterLinkInfoRequest.getActive()
+                ).stream()
                 .map(linkInfoMapper::toResponse)
                 .toList();
     }
@@ -61,7 +75,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @Override
     @LogExecutionTime
     public void delete(UUID id) {
-        linkInfoRepository.delete(id);
+        linkInfoRepository.deleteById(id);
     }
 
     @Override
@@ -77,6 +91,9 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     private LinkInfo update(LinkInfo linkInfo, UpdateLinkInfoRequest request) {
         if (request.getLink() != null) {
             linkInfo.setLink(request.getLink());
+        }
+        if (request.getEndTime() != null) {
+            linkInfo.setEndTime(request.getEndTime());
         }
         if (request.getDescription() != null) {
             linkInfo.setDescription(request.getDescription());

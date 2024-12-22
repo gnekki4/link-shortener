@@ -1,6 +1,7 @@
 package ru.gnekki4.linkshortener.service;
 
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
 
@@ -11,9 +12,9 @@ public interface LinkInfoService {
 
     LinkInfoResponse createLinkInfo(CreateLinkInfoRequest createLinkInfoRequest);
 
-    LinkInfoResponse getByShortLink(String shortLink);
+    LinkInfoResponse getByShortLink(String shortLink, boolean increment);
 
-    List<LinkInfoResponse> findByFilter();
+    List<LinkInfoResponse> findByFilter(FilterLinkInfoRequest filterLinkInfoRequest);
 
     void delete(UUID id);
 

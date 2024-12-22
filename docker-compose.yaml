@@ -1,0 +1,19 @@
+version: '3.3'
+
+volumes:
+  postgres_volume:
+
+services:
+  link-shortener-pg:
+    image: postgres:latest
+    container_name: link-shortener-pg
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: linkshortener
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: password
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
