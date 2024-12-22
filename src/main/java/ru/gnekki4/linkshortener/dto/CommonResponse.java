@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -18,7 +19,9 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class CommonResponse<T> {
 
     private UUID id;
-
     private T body;
+
+    private String errorMessage;
+    private List<ValidationError> validationErrors;
 
 }
