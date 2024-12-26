@@ -5,8 +5,10 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.stereotype.Service;
 import ru.gnekki4.linkshortener.annotation.LogExecutionTime;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.exception.NotFoundException;
+import ru.gnekki4.linkshortener.exception.NotFoundShortLinkException;
 import ru.gnekki4.linkshortener.mapper.LinkInfoMapper;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 import ru.gnekki4.linkshortener.model.LinkInfoResponse;
@@ -36,7 +38,7 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @LogExecutionTime
     public LinkInfoResponse createLinkInfo(CreateLinkInfoRequest createLinkInfoRequest) {
         var shortLink = generator.generate(linkInfoProperty.getShortLinkLength());
-        var linkInfo = linkInfoMapper.fromCreateRequest(createLinkInfoRequest, shortLink); // упс
+        var linkInfo = linkInfoMapper.fromCreateRequest(createLinkInfoRequest, shortLink);
 
         return linkInfoMapper.toResponse(linkInfoRepository.save(linkInfo));
     }
@@ -44,16 +46,24 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @Override
     @LogExecutionTime
     public LinkInfoResponse getByShortLink(String shortLink) {
-        return linkInfoRepository.findActiveByShortLink(shortLink, LocalDateTime.now())
-                .map(linkInfoMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Entity with short link %s is missing", shortLink)));
+        var linkInfo = linkInfoRepository.findActiveShortLink(shortLink, LocalDateTime.now())
+                .orElseThrow(() -> new NotFoundShortLinkException(String.format("Entity with short link %s is missing",
+                        shortLink)));
+
+        linkInfoRepository.incrementOpeningCount(shortLink);
+
+        return linkInfoMapper.toResponse(linkInfo);
     }
 
-    @Override
     @LogExecutionTime
-    public List<LinkInfoResponse> findByFilter() {
-        return linkInfoRepository.findAll().stream()
+    public List<LinkInfoResponse> findByFilter(FilterLinkInfoRequest filterLinkInfoRequest) {
+        return linkInfoRepository.findByFilter(
+                        filterLinkInfoRequest.getLinkPart(),
+                        filterLinkInfoRequest.getEndTimeFrom(),
+                        filterLinkInfoRequest.getEndTimeTo(),
+                        filterLinkInfoRequest.getDescription(),
+                        filterLinkInfoRequest.getActive()
+                ).stream()
                 .map(linkInfoMapper::toResponse)
                 .toList();
     }
@@ -61,17 +71,18 @@ public class LinkInfoServiceImpl implements LinkInfoService {
     @Override
     @LogExecutionTime
     public void delete(UUID id) {
-        linkInfoRepository.delete(id);
+        linkInfoRepository.deleteById(id);
     }
 
     @Override
     @LogExecutionTime
     public LinkInfoResponse updateLinkInfo(UpdateLinkInfoRequest request) {
-        return linkInfoRepository.findById(request.getId())
-                .map(linkInfo -> update(linkInfo, request))
-                .map(linkInfoRepository::save)
-                .map(linkInfoMapper::toResponse)
+        var linkInfo = linkInfoRepository.findById(request.getId())
                 .orElseThrow(() -> new NotFoundException("LinkInfo entity not found with id: " + request.getId()));
+        update(linkInfo, request);
+        linkInfo = linkInfoRepository.save(linkInfo);
+
+        return linkInfoMapper.toResponse(linkInfo);
     }
 
     private LinkInfo update(LinkInfo linkInfo, UpdateLinkInfoRequest request) {
