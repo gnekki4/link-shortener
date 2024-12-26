@@ -1,6 +1,8 @@
 package ru.gnekki4.linkshortener.repository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import ru.gnekki4.linkshortener.model.LinkInfo;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,11 +32,12 @@ public interface LinkInfoRepository extends JpaRepository<LinkInfo, UUID> {
               AND (:descriptionPart IS NULL OR lower(description) LIKE '%' || lower(cast(:descriptionPart AS String)) || '%')
               AND (:active IS NULL OR active = :active)
             """)
-    List<LinkInfo> findByFilter(String linkPart,
+    Page<LinkInfo> findByFilter(String linkPart,
                                 LocalDateTime endTimeFrom,
                                 LocalDateTime endTimeTo,
                                 String descriptionPart,
-                                Boolean active);
+                                Boolean active,
+                                Pageable pageable);
 
     @Query("""
             UPDATE LinkInfo
