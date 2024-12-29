@@ -2,10 +2,15 @@ package ru.gnekki4.linkshortener.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.RandomStringGenerator;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
-import ru.gnekki4.linkshortener.annotation.LogExecutionTime;
 import ru.gnekki4.linkshortener.dto.CreateLinkInfoRequest;
 import ru.gnekki4.linkshortener.dto.FilterLinkInfoRequest;
+import ru.gnekki4.linkshortener.dto.Page;
 import ru.gnekki4.linkshortener.dto.UpdateLinkInfoRequest;
 import ru.gnekki4.linkshortener.exception.NotFoundException;
 import ru.gnekki4.linkshortener.exception.NotFoundShortLinkException;
@@ -15,6 +20,7 @@ import ru.gnekki4.linkshortener.model.LinkInfoResponse;
 import ru.gnekki4.linkshortener.property.LinkInfoProperty;
 import ru.gnekki4.linkshortener.repository.LinkInfoRepository;
 import ru.gnekki4.linkshortener.service.LinkInfoService;
+import ru.gnekki4.loggingstarter.annotation.LogExecutionTime;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,7 +68,8 @@ public class LinkInfoServiceImpl implements LinkInfoService {
                         filterLinkInfoRequest.getEndTimeFrom(),
                         filterLinkInfoRequest.getEndTimeTo(),
                         filterLinkInfoRequest.getDescription(),
-                        filterLinkInfoRequest.getActive()
+                        filterLinkInfoRequest.getActive(),
+                        getPageable(filterLinkInfoRequest.getPage())
                 ).stream()
                 .map(linkInfoMapper::toResponse)
                 .toList();
@@ -83,6 +90,15 @@ public class LinkInfoServiceImpl implements LinkInfoService {
         linkInfo = linkInfoRepository.save(linkInfo);
 
         return linkInfoMapper.toResponse(linkInfo);
+    }
+
+    private Pageable getPageable(Page page) {
+        var sorting = page.getSorts().stream()
+                .map(s -> new Order(Direction.valueOf(s.getDirection()), s.getField()))
+                .toList();
+
+        return PageRequest.of(page.getNumber() - 1, page.getSize(), Sort.by(sorting));
+
     }
 
     private LinkInfo update(LinkInfo linkInfo, UpdateLinkInfoRequest request) {

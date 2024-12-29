@@ -1,33 +1,42 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.2.5'
-    id 'io.spring.dependency-management' version '1.1.5'
+    id "java"
+    id "org.springframework.boot" version "3.2.5"
+    id "io.spring.dependency-management" version "1.1.5"
 }
 
-group = 'ru.gnekki4.linkshortener'
-version = '1.0-SNAPSHOT'
+group = "ru.gnekki4.linkshortener"
+version = "1.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url = uri("https://raw.githubusercontent.com/gnekki4/logging-starter/master/maven-repo")
     }
 }
 
+def lombokMapstructBindingVersion = "0.2.0"
+def loggingStarterVersion = "1.1-SNAPSHOT"
+def apacheCommonsTextVersion = "1.10.0"
+def mapstructVersion = "1.5.5.Final"
+def postgresqlVersion = "42.7.4"
+
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation 'org.apache.commons:commons-text:1.10.0'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    implementation "org.postgresql:postgresql:42.7.4"
+
+    implementation "org.apache.commons:commons-text:$apacheCommonsTextVersion"
+    implementation "org.postgresql:postgresql:$postgresqlVersion"
+    implementation "org.mapstruct:mapstruct:$mapstructVersion"
     implementation "org.liquibase:liquibase-core"
-    implementation 'org.projectlombok:lombok'
+    implementation "org.projectlombok:lombok"
 
-    implementation 'ru.gnekki4:logging-starter:1.0-SNAPSHOT'
+    implementation "ru.gnekki4:logging-starter:$loggingStarterVersion"
 
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:$lombokMapstructBindingVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapstructVersion"
+    annotationProcessor "org.projectlombok:lombok"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
